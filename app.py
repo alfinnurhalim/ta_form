@@ -12,7 +12,7 @@ CSV_PATH = "ratings.csv"
 ACCENT = "#FF6F61"
 
 # ========= PAGE SETUP =========
-st.set_page_config("APAKAH INI GAMBAR AI?", "🖼️", layout="wide")
+st.set_page_config("APAKAH INI GAMBAR AI?!", "🖼️", layout="wide")
 st.markdown(f"""
 <style>
 :root {{ --accent: {ACCENT}; }}
