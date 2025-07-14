@@ -64,11 +64,11 @@ if "idx" not in st.session_state:
 st.markdown("<h1 style='text-align:center;color:var(--accent)'>🖼️ Blind Clarity Quiz</h1>", unsafe_allow_html=True)
 st.markdown("""
 **Apa ini?**  
-Sebuah **kuis singkat**: setiap putaran, Anda akan melihat dua gambar—satu foto asli, dan satu lagi telah diperbaiki komputer agar tampil lebih jernih.  
-Tugas Anda: pilih gambar yang menurut Anda **paling jernih**!
+Sebuah **kuis singkat**: Anda akan melihat dua gambar. Satu dari gambar tersebut adalah gambar asli, dan satu lagi gambar hasil AI.  
+Tugas Anda adalah pilih gambar yang menurut Anda **paling jernih**!
 
 **Cara bermain:**  
-1. Masukkan **Nama/ID** Anda (atau ketik **download** untuk mengambil hasil).  
+1. Masukkan **Nama/ID** Anda.  
 2. Amati dua gambar di sisi **Kiri** dan **Kanan**.  
 3. Pilih mana yang menurut Anda **paling jernih**.  
 4. Klik **➡️ Berikutnya** untuk melanjutkan.  
@@ -77,7 +77,7 @@ Tugas Anda: pilih gambar yang menurut Anda **paling jernih**!
 """, unsafe_allow_html=True)
 
 # ========= USER INPUT / DOWNLOAD GATE =========
-user = st.text_input("Masukkan Nama / ID Anda (atau ketik 'download'):")
+user = st.text_input("Masukkan Nama / ID Anda:")
 if not user:
     st.stop()
 
