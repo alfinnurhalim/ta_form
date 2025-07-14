@@ -11,7 +11,7 @@ IMAGE_DIR = "images"          # folder with survey images
 CSV_PATH  = "ratings.csv"     # vote log
 ACCENT    = "#FF6F61"         # coral highlight
 
-# ========= PAGE & STYLE =========
+# ========= PAGE SETUP & STYLE =========
 st.set_page_config("Blind Clarity Quiz", "🖼️", layout="wide")
 st.markdown(f"""
     <style>
@@ -28,7 +28,8 @@ st.markdown(f"""
 # ========= HELPERS =========
 @st.cache_resource
 def list_images(folder: str):
-    return sorted(f for f in os.listdir(folder) if f.lower().endswith((".png", ".jpg", ".jpeg")))
+    return sorted(f for f in os.listdir(folder)
+                  if f.lower().endswith((".png", ".jpg", ".jpeg")))
 
 @st.cache_resource
 def load_image_bytes(path: str) -> bytes:
@@ -37,18 +38,13 @@ def load_image_bytes(path: str) -> bytes:
     img.save(buf, format="PNG", optimize=True)
     return buf.getvalue()
 
-def save_vote(user: str, pair_id: str, choice_label: str):
-    """Append response: which label user picked (GT or Rekonstruksi)."""
-    df = pd.DataFrame([{
-        "user": user,
-        "pair": pair_id,
-        "choice": choice_label
-    }])
+def save_vote(user: str, pair_id: str, choice: str):
+    df = pd.DataFrame([{"user": user, "pair": pair_id, "choice": choice}])
     mode   = "a" if os.path.exists(CSV_PATH) else "w"
     header = not os.path.exists(CSV_PATH)
     df.to_csv(CSV_PATH, mode=mode, header=header, index=False)
 
-# ========= BUILD PAIRS =========
+# ========= BUILD IMAGE PAIRS =========
 all_imgs = list_images(IMAGE_DIR)
 pairs = []
 for fname in all_imgs:
@@ -60,7 +56,7 @@ for fname in all_imgs:
             pairs.append((base, fname, result_fname))
 total = len(pairs)
 
-# ========= SESSION =========
+# ========= SESSION STATE =========
 if "idx" not in st.session_state:
     st.session_state.idx = 0
 
@@ -68,22 +64,37 @@ if "idx" not in st.session_state:
 st.markdown("<h1 style='text-align:center;color:var(--accent)'>🖼️ Blind Clarity Quiz</h1>", unsafe_allow_html=True)
 st.markdown("""
 **Apa ini?**  
-Sebuah **QUIZ**: antara dua gambar—satu _Ground Truth_ (GT) asli, dan satu _AI-reconstructed_ (hasil)—mana yang benar-benar gambar nyata?  
-Gambar-gambar ini awalnya digunakan untuk **image dehazing**; satu sisi adalah GT, satu lagi hasil rekonstruksi AI.  
-Tujuan: lihat apakah AI dapat “menipu” mata manusia.
+Sebuah **kuis singkat**: setiap putaran, Anda akan melihat dua gambar—satu foto asli, dan satu lagi telah diperbaiki komputer agar tampil lebih jernih.  
+Tugas Anda: pilih gambar yang menurut Anda **paling jernih**!
 
-**Cara main:**  
-1. Masukkan **Nama/ID** Anda.  
-2. Untuk setiap pasangan, perhatikan dua gambar di sisi **Kiri** dan **Kanan** (urutan acak).  
-3. Pilih mana yang menurut Anda **GT (nyata)** atau **Rekonstruksi (AI)**.  
-4. Klik **➡️ Berikutnya** untuk menyimpan jawaban dan lanjut quiz.  
-5. Ulangi hingga semua pasangan terjawab.
----
+**Cara bermain:**  
+1. Masukkan **Nama/ID** Anda (atau ketik **download** untuk mengambil hasil).  
+2. Amati dua gambar di sisi **Kiri** dan **Kanan**.  
+3. Pilih mana yang menurut Anda **paling jernih**.  
+4. Klik **➡️ Berikutnya** untuk melanjutkan.  
+5. Ulangi hingga semua gambar selesai dinilai.
+---  
 """, unsafe_allow_html=True)
 
-# ========= USER ID =========
-user = st.text_input("Masukkan Nama / ID Anda untuk memulai:")
+# ========= USER INPUT / DOWNLOAD GATE =========
+user = st.text_input("Masukkan Nama / ID Anda (atau ketik 'download'):")
 if not user:
+    st.stop()
+
+if user.strip().lower() == "download":
+    if os.path.exists(CSV_PATH):
+        df = pd.read_csv(CSV_PATH)
+        st.subheader("🗒️ Rekap Jawaban")
+        st.dataframe(df)
+        with open(CSV_PATH, "rb") as f:
+            st.download_button(
+                label="⬇️ Unduh Hasil Quiz (CSV)",
+                data=f,
+                file_name="ratings.csv",
+                mime="text/csv"
+            )
+    else:
+        st.error("Belum ada data untuk diunduh.")
     st.stop()
 
 # ========= QUIZ LOOP =========
@@ -93,41 +104,40 @@ if st.session_state.idx < total:
     st.markdown(f"**Pasangan {idx+1} dari {total}**")
     st.progress((idx + 1) / total)
 
-    # assemble and shuffle
-    items = [("GT", gt_file), ("Rekonstruksi", res_file)]
+    # prepare & shuffle
+    items = [("Asli", gt_file), ("Hasil AI", res_file)]
     random.shuffle(items)
-    left_label,  left_file  = items[0]
-    right_label, right_file = items[1]
+    (left_type, left_file), (right_type, right_file) = items
 
-    # load images
+    # encode images
     left_b64  = base64.b64encode(load_image_bytes(os.path.join(IMAGE_DIR, left_file))).decode()
     right_b64 = base64.b64encode(load_image_bytes(os.path.join(IMAGE_DIR, right_file))).decode()
 
     # display side-by-side
     st.markdown(f"""
-    <div style="display:flex; flex-wrap:nowrap; gap:1%;">
-      <div style="flex:1; text-align:center;">
-        <img src="data:image/png;base64,{left_b64}" style="width:100%; border-radius:0.5rem;"/>
-        <p><strong>Kiri</strong></p>
-      </div>
-      <div style="flex:1; text-align:center;">
-        <img src="data:image/png;base64,{right_b64}" style="width:100%; border-radius:0.5rem;"/>
-        <p><strong>Kanan</strong></p>
-      </div>
-    </div>
+        <div style="display:flex; gap:1%;">
+          <div style="flex:1; text-align:center;">
+            <img src="data:image/png;base64,{left_b64}" style="width:100%; border-radius:0.5rem;"/>
+            <p><strong>Kiri</strong></p>
+          </div>
+          <div style="flex:1; text-align:center;">
+            <img src="data:image/png;base64,{right_b64}" style="width:100%; border-radius:0.5rem;"/>
+            <p><strong>Kanan</strong></p>
+          </div>
+        </div>
     """, unsafe_allow_html=True)
 
     # choice form
     with st.form("quiz_form", clear_on_submit=True):
-        choice = st.radio("Mana yang GT (nyata)?", ["Kiri", "Kanan"], horizontal=True)
+        choice = st.radio("Mana yang tampak paling jernih?", ["Kiri", "Kanan"], horizontal=True)
         if st.form_submit_button("➡️  Berikutnya"):
-            picked = left_label  if choice == "Kiri" else right_label
+            picked = left_type if choice == "Kiri" else right_type
             save_vote(user, base, picked)
             st.session_state.idx += 1
             if hasattr(st, "rerun"):
                 st.rerun()
 
-# ========= FINISH =========
+# ========= COMPLETION =========
 else:
     st.balloons()
     st.success("🎉 Selesai! Terima kasih atas partisipasi Anda.")
