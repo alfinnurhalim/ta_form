@@ -12,7 +12,7 @@ CSV_PATH  = "ratings.csv"     # vote log
 ACCENT    = "#FF6F61"         # coral highlight
 
 # ========= PAGE SETUP & STYLE =========
-st.set_page_config("Blind Clarity Quiz", "🖼️", layout="wide")
+st.set_page_config("APAKAH INI GAMBAR AI?", "🖼️", layout="wide")
 st.markdown(f"""
     <style>
     :root {{ --accent: {ACCENT}; }}
