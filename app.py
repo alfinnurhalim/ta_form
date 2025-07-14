@@ -105,10 +105,10 @@ st.markdown("<div style='display:flex;justify-content:space-around;margin-bottom
 col1, col2 = st.columns(2)
 with col1:
     st.subheader("Contoh: Berkabut")
-    st.image(load_img("/workspaces/ta_form/images/41_outdoor_input.jpg"), use_container_width=True)
+    st.image(load_img("images/41_outdoor_input.jpg"), use_container_width=True)
 with col2:
     st.subheader("Contoh: Jernih")
-    st.image(load_img("/workspaces/ta_form/images/41_outdoor_gt.jpg"), use_container_width=True)
+    st.image(load_img("images/41_outdoor_gt.jpg"), use_container_width=True)
 st.markdown("</div>", unsafe_allow_html=True)
 
 # Instructions
