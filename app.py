@@ -2,57 +2,119 @@ import streamlit as st
 import os
 import pandas as pd
 from PIL import Image
-from datetime import datetime
 
-# === Config ===
-IMAGE_DIR = "images"           # Folder containing question folders (e.g. images/image_01/)
-CSV_PATH = "ratings.csv"        # Output file (appended, not overwritten)
+# === CONFIG ===
+IMAGE_DIR = "images"
+CSV_PATH = "ratings.csv"
+PRIMARY_COLOR = "#5B9BD5"  # Light blue
 
-# === App UI ===
-st.title("Image Dehazing Quality Test")
-st.write("Please rate the visual quality of each image set.")
+st.set_page_config(page_title="Image Quality Surveys", layout="wide")
 
-# Get user info
-name = st.text_input("Enter your name or ID")
+# === STYLES ===
+st.markdown(f"""
+    <style>
+        .big-score {{
+            font-size: 72px;
+            font-weight: bold;
+            color: black;
+            text-align: center;
+        }}
+        .score-label {{
+            font-size: 20px;
+            text-align: center;
+            color: #444;
+            margin-top: -10px;
+        }}
+        .slider-labels {{
+            display: flex;
+            justify-content: space-between;
+            margin-top: -10px;
+            font-weight: bold;
+            color: #666;
+            width: 400px;
+            margin-left: auto;
+            margin-right: auto;
+        }}
+        .image-title {{
+            text-align: center;
+            font-size: 22px;
+            margin-bottom: 10px;
+        }}
+        .main-title {{
+            text-align: center;
+            font-size: 36px;
+            color: {PRIMARY_COLOR};
+            margin-bottom: 20px;
+        }}
+        .next-button-style button {{
+            width: 100%;
+            font-size: 28px;
+            padding: 1.2em;
+            background-color: {PRIMARY_COLOR};
+            color: white;
+            border: none;
+            border-radius: 10px;
+        }}
+    </style>
+""", unsafe_allow_html=True)
 
-if name:
-    st.markdown("---")
+# === APP TITLE ===
+st.markdown("<div class='main-title'>🖼️ Image Quality Surveys</div>", unsafe_allow_html=True)
+
+username = st.text_input("Enter your name or ID to begin:")
+
+if username:
+    st.write("---")
     ratings = []
+    image_files = sorted([f for f in os.listdir(IMAGE_DIR) if f.lower().endswith(('.png', '.jpg', '.jpeg'))])
 
-    # List image groups (each folder = 1 question)
-    for idx, folder in enumerate(sorted(os.listdir(IMAGE_DIR))):
-        folder_path = os.path.join(IMAGE_DIR, folder)
-        if not os.path.isdir(folder_path):
-            continue
+    if 'index' not in st.session_state:
+        st.session_state.index = 0
+        st.session_state.responses = []
 
-        st.subheader(f"Question {idx + 1}: {folder}")
-        image_files = sorted(os.listdir(folder_path))
-        cols = st.columns(len(image_files))
+    total_images = len(image_files)
+    current_index = st.session_state.index
 
-        for i, img_name in enumerate(image_files):
-            img_path = os.path.join(folder_path, img_name)
-            with cols[i]:
-                st.image(Image.open(img_path), caption=img_name, use_column_width=True)
+    if current_index < total_images:
+        img_file = image_files[current_index]
+        img = Image.open(os.path.join(IMAGE_DIR, img_file))
 
-        score = st.slider(
-            f"Rate the visual quality for {folder}",
-            min_value=1,
-            max_value=5,
-            value=3,
-            key=f"slider_{folder}"
-        )
-        ratings.append([name, folder, score, datetime.now().isoformat()])
-        st.markdown("---")
+        st.markdown(f"<div class='image-title'>Image {current_index + 1} of {total_images}</div>", unsafe_allow_html=True)
+        col_img, col_score = st.columns([4, 1])
 
-    if st.button("Submit Ratings"):
-        df_new = pd.DataFrame(ratings, columns=["name", "image_group", "rating", "timestamp"])
+        with col_img:
+            st.image(img, width=400)
 
-        if os.path.exists(CSV_PATH):
-            df_old = pd.read_csv(CSV_PATH)
-            df_combined = pd.concat([df_old, df_new], ignore_index=True)
-        else:
-            df_combined = df_new
+        with col_score:
+            st.markdown("<div class='score-label'>IMAGE<br>SCORE</div>", unsafe_allow_html=True)
+            slider_val = st.slider("Seberapa jernih gambar ini?", 0, 100, 50, key=f"slider_{img_file}")
+            st.markdown(f"<div class='big-score'>{slider_val}</div>", unsafe_allow_html=True)
 
-        df_combined.to_csv(CSV_PATH, index=False)
-        st.success("Thank you! Your responses have been recorded.")
- 
+        st.markdown("""
+        <div class='slider-labels'>
+            <span>Kabut</span>
+            <span>Jernih</span>
+        </div>
+        """, unsafe_allow_html=True)
+
+        st.markdown("<div class='next-button-style'>", unsafe_allow_html=True)
+        if st.button("➡️ Next Image"):
+            st.session_state.responses.append([username, img_file, slider_val])
+            st.session_state.index += 1
+            st.rerun()
+        st.markdown("</div>", unsafe_allow_html=True)
+
+    else:
+        # Final submission screen
+        st.success("🎉 You have rated all images. Click below to submit.")
+        if st.button("✅ Submit Ratings"):
+            df = pd.DataFrame(st.session_state.responses, columns=["name", "image", "score"])
+            if os.path.exists(CSV_PATH):
+                old_df = pd.read_csv(CSV_PATH)
+                df = pd.concat([old_df, df], ignore_index=True)
+            df.to_csv(CSV_PATH, index=False)
+            st.success("✅ Your ratings have been recorded. Thank you!")
+            del st.session_state.index
+            del st.session_state.responses
+else:
+    st.info("Please enter your name or ID to begin.")
