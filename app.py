@@ -61,7 +61,7 @@ if "idx" not in st.session_state:
     st.session_state.idx = 0
 
 # ========= HEADER & EXPLAINER =========
-st.markdown("<h1 style='text-align:center;color:var(--accent)'>🖼️ Blind Clarity Quiz</h1>", unsafe_allow_html=True)
+st.markdown("<h1 style='text-align:center;color:var(--accent)'>🖼️ APAKAH INI GAMBAR AI?</h1>", unsafe_allow_html=True)
 st.markdown("""
 **Apa ini?**  
 Sebuah **kuis singkat**: Anda akan melihat dua gambar. Satu dari gambar tersebut adalah gambar asli, dan satu lagi gambar hasil AI.  
