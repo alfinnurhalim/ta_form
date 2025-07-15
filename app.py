@@ -160,7 +160,7 @@ if st.session_state.idx < total:
 
     # Form
     with st.form("vote_form", clear_on_submit=True):
-        choice = st.radio("Mana yang tampak paling jernih (natural)?", ["Kiri", "Kanan"], horizontal=True)
+        choice = st.radio("Mana yang tampak paling jernih?", ["Kiri", "Kanan"], horizontal=True)
         if st.form_submit_button("➡️  Berikutnya"):
             picked_label = left_label if choice == "Kiri" else right_label
             save_vote(user, base, picked_label)
