@@ -66,7 +66,7 @@ if "idx" not in st.session_state:
     st.session_state.idx = 0
 
 # ========= HEADER =========
-st.markdown("<h1 style='text-align:center;color:var(--accent)'>YANG MANAKAH GAMBAR AI?</h1>", unsafe_allow_html=True)
+st.markdown("<h1 style='text-align:center;color:var(--accent)'>MANAKAH YANG PALING JERNIH?</h1>", unsafe_allow_html=True)
 st.markdown(f"""
 <div style="
     padding:1.5rem;
