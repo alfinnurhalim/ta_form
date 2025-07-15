@@ -69,14 +69,16 @@ if "idx" not in st.session_state:
 st.markdown("<h1 style='text-align:center;color:var(--accent)'>YANG MANAKAH GAMBAR AI?</h1>", unsafe_allow_html=True)
 st.markdown("""
 **Apa ini?**  
-Ini adalah kuis untuk melihat apakah manusia bisa membedakan gambar asli dengan gambar hasil rekonstruksi AI.  
-Setiap soal berisi dua gambar — satu asli, dan satu lagi buatan AI.
+Ini adalah kuis sederhana untuk melihat apakah manusia bisa membedakan gambar asli dan gambar yang dihasilkan oleh AI.  
+Setiap soal menampilkan dua gambar: satu adalah **gambar asli**, dan satu lagi adalah **gambar hasil AI**.
 
-Tugas Anda: pilih gambar yang menurut Anda **paling jernih**.
+Tugas Anda adalah memilih gambar yang menurut Anda **lebih jernih**.  
+Penilaian ini akan membantu memahami seberapa baik kualitas hasil AI berdasarkan persepsi manusia.
 
-**“Jernih” artinya:**  
-- Tampak **alami**,  
-- **Tajam**, tidak buram,  
+**Apa maksud "jernih"?**  
+Dalam konteks ini, "jernih" berarti:
+- Tampak **alami** (tidak terlihat aneh atau buatan),
+- **Tajam** dan tidak buram,
 - Warna dan detailnya **nyaman dilihat**.
 
 **Cara bermain:**  
@@ -167,7 +169,7 @@ else:
                 if percent_ai >= 80:
                     msg = "Wah! AI berhasil mengelabui kamu hampir di semua gambar!"
                 elif percent_ai >= 50:
-                    msg = "Lumayan sering terkecoh — gambar AI terlihat cukup meyakinkan!"
+                    msg = "Lumayan sering terkecoh. gambar AI terlihat cukup meyakinkan! Keren kan ??"
                 elif percent_ai >= 20:
                     msg = "Kamu masih bisa membedakan dengan baik, tapi AI mulai mendekati kenyataan."
                 else:
