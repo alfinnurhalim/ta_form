@@ -67,27 +67,42 @@ if "idx" not in st.session_state:
 
 # ========= HEADER =========
 st.markdown("<h1 style='text-align:center;color:var(--accent)'>YANG MANAKAH GAMBAR AI?</h1>", unsafe_allow_html=True)
-st.markdown("""
-**Apa ini?**  
-Ini adalah kuis sederhana untuk melihat apakah manusia bisa membedakan gambar asli dan gambar yang dihasilkan oleh AI.  
-Setiap soal menampilkan dua gambar: satu adalah **gambar asli**, dan satu lagi adalah **gambar hasil AI**.
+st.markdown(f"""
+<div style="
+    padding:1.5rem;
+    background:var(--secondary-background-color);
+    border-radius:1rem;
+    margin-bottom:1.5rem;
+    font-size:1.05rem;
+    line-height:1.7;
+    color:var(--text-color);
+">
+  <h3 style="color:var(--primary-color); margin-top:0;">🧠 Apa ini?</h3>
+  <p>
+    Ini adalah kuis sederhana untuk melihat apakah manusia bisa membedakan gambar asli dan gambar yang dihasilkan oleh AI.  
+    Setiap soal menampilkan dua gambar: satu adalah **gambar asli**, dan satu lagi adalah **gambar hasil AI**.
+  </p>
+  <p>
+    Tugas Anda adalah memilih gambar yang menurut Anda **lebih jernih**.  
+    Penilaian ini akan membantu memahami seberapa baik kualitas hasil AI berdasarkan persepsi manusia.
+  </p>
 
-Tugas Anda adalah memilih gambar yang menurut Anda **lebih jernih**.  
-Penilaian ini akan membantu memahami seberapa baik kualitas hasil AI berdasarkan persepsi manusia.
+  <h4 style="color:var(--primary-color); margin-top:2rem;">🔍 Apa maksud "jernih"?</h4>
+  <ul style="padding-left:1.2rem;">
+    <li><b>Tampak alami</b> (tidak terlihat aneh atau buatan)</li>
+    <li><b>Tajam</b> dan tidak buram</li>
+    <li><b>Warna dan detailnya</b> nyaman dilihat</li>
+  </ul>
 
-**Apa maksud "jernih"?**  
-Dalam konteks ini, "jernih" berarti:
-- Tampak **alami** (tidak terlihat aneh atau buatan),
-- **Tajam** dan tidak buram,
-- Warna dan detailnya **nyaman dilihat**.
-
-**Cara bermain:**  
-1. Masukkan **Nama / ID** Anda.  
-2. Lihat dua gambar di sisi **Kiri** dan **Kanan**.  
-3. Pilih yang menurut Anda **lebih jernih**.  
-4. Klik **➡️ Berikutnya** untuk lanjut.  
-5. Lanjutkan hingga selesai.
----
+  <h4 style="color:var(--primary-color); margin-top:2rem;">🎯 Cara bermain:</h4>
+  <ol style="padding-left:1.4rem;">
+    <li>Masukkan <b>Nama / ID</b> Anda.</li>
+    <li>Lihat dua gambar di sisi <b>Kiri</b> dan <b>Kanan</b>.</li>
+    <li>Pilih gambar yang menurut Anda <b>lebih jernih</b>.</li>
+    <li>Klik <b>➡️ Berikutnya</b> untuk lanjut.</li>
+    <li>Lanjutkan hingga semua gambar selesai.</li>
+  </ol>
+</div>
 """, unsafe_allow_html=True)
 
 # ========= USER INPUT =========
