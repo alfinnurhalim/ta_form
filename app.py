@@ -79,11 +79,11 @@ st.markdown(f"""
 ">
   <h3 style="color:var(--primary-color); margin-top:0;">🧠 Apa ini?</h3>
   <p>
-    Ini adalah kuis sederhana untuk melihat apakah manusia bisa membedakan gambar asli dan gambar yang dihasilkan oleh AI.  
-    Setiap soal menampilkan dua gambar: satu adalah **gambar asli**, dan satu lagi adalah **gambar hasil AI**.
+    Ini adalah kuis sederhana untuk melihat apakah manusia bisa membedakan gambar asli dan gambar yang dihasilkan oleh AI.<br>
+    Setiap soal menampilkan dua gambar: satu adalah <b>gambar asli</b>, dan satu lagi adalah <b>gambar hasil AI</b>.
   </p>
   <p>
-    Tugas Anda adalah memilih gambar yang menurut Anda **lebih jernih**.  
+    Tugas Anda adalah memilih gambar yang menurut Anda <b>lebih jernih</b>.<br>
     Penilaian ini akan membantu memahami seberapa baik kualitas hasil AI berdasarkan persepsi manusia.
   </p>
 
@@ -104,6 +104,7 @@ st.markdown(f"""
   </ol>
 </div>
 """, unsafe_allow_html=True)
+
 
 # ========= USER INPUT =========
 user = st.text_input("Masukkan Nama / ID Anda:")
