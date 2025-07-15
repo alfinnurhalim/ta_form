@@ -12,7 +12,7 @@ CSV_PATH = "ratings.csv"
 ACCENT = "#FF6F61"
 
 # ========= PAGE SETUP =========
-st.set_page_config("APAKAH INI GAMBAR AI?!", "🖼️", layout="wide")
+st.set_page_config("Yang manakah gambar AI?", "🖼️", layout="wide")
 st.markdown(f"""
 <style>
 :root {{ --accent: {ACCENT}; }}
@@ -38,8 +38,9 @@ def load_image_bytes(path: str) -> bytes:
     img.save(buf, format="PNG", optimize=True)
     return buf.getvalue()
 
-def save_vote(user: str, pair_id: str, choice: str):
-    df = pd.DataFrame([{"user": user, "pair": pair_id, "choice": choice}])
+def save_vote(user: str, pair_id: str, choice_label: str):
+    choice_val = 1 if choice_label.lower() == "asli" else 0  # 1 = GT, 0 = AI
+    df = pd.DataFrame([{"user": user, "pair": pair_id, "choice": choice_val}])
     mode = "a" if os.path.exists(CSV_PATH) else "w"
     header = not os.path.exists(CSV_PATH)
     df.to_csv(CSV_PATH, mode=mode, header=header, index=False)
@@ -65,18 +66,25 @@ if "idx" not in st.session_state:
     st.session_state.idx = 0
 
 # ========= HEADER =========
-st.markdown("<h1 style='text-align:center;color:var(--accent)'>🖼️ APAKAH INI GAMBAR AI?</h1>", unsafe_allow_html=True)
+st.markdown("<h1 style='text-align:center;color:var(--accent)'>YANG MANAKAH GAMBAR AI?</h1>", unsafe_allow_html=True)
 st.markdown("""
 **Apa ini?**  
-Sebuah **kuis singkat**: Anda akan melihat dua gambar. Satu dari gambar tersebut adalah gambar asli (GT), dan satu lagi adalah hasil dari AI.  
-Tugas Anda adalah pilih gambar yang menurut Anda **paling jernih**.
+Ini adalah kuis untuk melihat apakah manusia bisa membedakan gambar asli dengan gambar hasil rekonstruksi AI.  
+Setiap soal berisi dua gambar — satu asli, dan satu lagi buatan AI.
+
+Tugas Anda: pilih gambar yang menurut Anda **paling jernih**.
+
+**“Jernih” artinya:**  
+- Tampak **alami**,  
+- **Tajam**, tidak buram,  
+- Warna dan detailnya **nyaman dilihat**.
 
 **Cara bermain:**  
-1. Masukkan **Nama/ID** Anda.  
+1. Masukkan **Nama / ID** Anda.  
 2. Lihat dua gambar di sisi **Kiri** dan **Kanan**.  
-3. Pilih gambar yang tampak **paling jernih**.  
+3. Pilih yang menurut Anda **lebih jernih**.  
 4. Klik **➡️ Berikutnya** untuk lanjut.  
-5. Selesaikan hingga semua gambar dinilai.
+5. Lanjutkan hingga selesai.
 ---
 """, unsafe_allow_html=True)
 
@@ -112,15 +120,15 @@ if st.session_state.idx < total:
     # Randomize position
     items = [("Asli", gt_file), ("Hasil AI", res_file)]
     random.shuffle(items)
-    (left_type, left_file), (right_type, right_file) = items
+    (left_label, left_file), (right_label, right_file) = items
 
     # Load and encode
     left_b64 = base64.b64encode(load_image_bytes(os.path.join(IMAGE_DIR, left_file))).decode()
     right_b64 = base64.b64encode(load_image_bytes(os.path.join(IMAGE_DIR, right_file))).decode()
 
-    # Show side-by-side
+    # Display
     st.markdown(f"""
-        <div style="display:flex; gap:1%;">
+        <div style="display:flex; gap:1%; margin-bottom:1rem;">
             <div style="flex:1; text-align:center;">
                 <img src="data:image/png;base64,{left_b64}" style="width:100%; border-radius:0.5rem;"/>
                 <p><strong>Kiri</strong></p>
@@ -132,19 +140,47 @@ if st.session_state.idx < total:
         </div>
     """, unsafe_allow_html=True)
 
-    # Choice form
+    # Form
     with st.form("vote_form", clear_on_submit=True):
-        choice = st.radio("Mana yang tampak paling jernih?", ["Kiri", "Kanan"], horizontal=True)
+        choice = st.radio("Mana yang tampak paling jernih (natural)?", ["Kiri", "Kanan"], horizontal=True)
         if st.form_submit_button("➡️  Berikutnya"):
-            picked = left_type if choice == "Kiri" else right_type
-            save_vote(user, base, picked)
+            picked_label = left_label if choice == "Kiri" else right_label
+            save_vote(user, base, picked_label)
             st.session_state.idx += 1
             st.rerun()
 
-# ========= QUIZ DONE =========
+# ========= QUIZ COMPLETE =========
 else:
     st.balloons()
     st.success("🎉 Selesai! Terima kasih atas partisipasi Anda.")
+
+    if os.path.exists(CSV_PATH):
+        df = pd.read_csv(CSV_PATH)
+        if "user" in df.columns and "choice" in df.columns:
+            user_df = df[df["user"] == user]
+            if not user_df.empty:
+                total_votes = len(user_df)
+                ai_votes = (user_df["choice"] == 0).sum()
+                percent_ai = int(round(100.0 * ai_votes / total_votes))
+
+                # Determine message based on score
+                if percent_ai >= 80:
+                    msg = "Wah! AI berhasil mengelabui kamu hampir di semua gambar!"
+                elif percent_ai >= 50:
+                    msg = "Lumayan sering terkecoh — gambar AI terlihat cukup meyakinkan!"
+                elif percent_ai >= 20:
+                    msg = "Kamu masih bisa membedakan dengan baik, tapi AI mulai mendekati kenyataan."
+                else:
+                    msg = "Hebat! Kamu cukup jeli dalam mengenali gambar buatan AI."
+
+                st.markdown(f"""
+                <div style="text-align:center; padding:2rem; background:#fffaf0; border-radius:1rem;">
+                    <div style="font-size:4rem; font-weight:bold; color:var(--accent);">{percent_ai}%</div>
+                    <div style="margin-top:1rem; font-size:1.2rem; font-weight:bold; color:#000;">gambar yang kamu pilih sebagai paling jernih adalah hasil dari AI.</div>
+                    <div style="margin-top:1rem; font-size:1.1rem; color:#333;">{msg}</div>
+                </div>
+                """, unsafe_allow_html=True)
+
     if st.button("🔄 Mulai Ulang Quiz"):
         st.session_state.idx = 0
         st.rerun()
